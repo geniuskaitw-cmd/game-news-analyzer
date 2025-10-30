@@ -14,7 +14,7 @@ from opencc import OpenCC
 
 # ========== 初始化 ==========
 genai.configure(api_key=os.getenv("GEMINI") or os.getenv("GEMINI_API_KEY"))
-GEN_MODEL=os.getenv("GEMINI_MODEL","gemini-1.5-flash") # 修正：使用 gemini-1.5-flash 或更新模型
+GEN_MODEL=os.getenv("GEMINI_MODEL","gemini-2.5-flash") # 修正：使用 gemini-2.5-flash 或更新模型
 cc=OpenCC("s2t")
 HEADERS={"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"}
 MAX_AGE_DAYS = 3
