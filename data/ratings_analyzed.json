@@ -1,7 +1,21 @@
 {
-  "rows": [],
+  "rows": [
+    {
+      "news_id": "9c2728958e046ba1fd6eb8b26cf97f3c",
+      "model_version": "openai",
+      "score": 3,
+      "user_id": "hscSnLQzQhY7CnNCNRKfaJj16WW2",
+      "date_str": "2025-10-30",
+      "created_at": "2025-10-30 05:52:18.553000+00:00"
+    }
+  ],
   "analysis": {
-    "summary": {},
-    "total_records": 0
+    "summary": {
+      "openai": {
+        "count": 1,
+        "avg_score": 3.0
+      }
+    },
+    "total_records": 1
   }
 }
