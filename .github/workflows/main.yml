@@ -2,9 +2,10 @@
 # 此工作流：
 # 1. 每天定時 (台灣時間 16:00) 執行。
 # 2. 安裝 Python 依賴。
-# 3. 執行 Gemini 腳本抓取新聞並用 AI 分析。
-# 4. 執行分析腳本，從 Firebase 拉取使用者評分。
-# 5. 將所有生成的 data/ 檔案（新聞JSON、評分JSON）推送回 GitHub。
+# 3. [Gemini] 執行 Gemini 腳本，輸出 news_gemini.json
+# 4. [OpenAI] 執行 OpenAI 腳本，輸出 news_ai.json
+# 5. [分析] 執行分析腳本，從 Firebase 拉取使用者評分。
+# 6. 將所有 data/ 檔案推送回 GitHub。
 
 name: News Analysis Workflow
 
@@ -20,23 +21,19 @@ jobs:
   run_analysis:
     runs-on: ubuntu-latest
     
-    # 賦予工作流寫入權限，以便將 data/ 推送回儲存庫
     permissions:
       contents: write
 
     steps:
-      # 步驟 1: 簽出 (Checkout) 您的程式碼
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 步驟 2: 設定 Python 環境
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11' # 您可以使用 3.9 ~ 3.11
+          python-version: '3.11'
 
       # 步驟 3: 安裝所有必要的 Python 函式庫
-      # (這涵蓋了您所有 .py 腳本的需求)
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -44,33 +41,32 @@ jobs:
           pip install google-generativeai openai # 同時安裝 Gemini 和 OpenAI
           pip install firebase-admin # 用於 analyze_ratings.py
 
-      # 步驟 4: 執行 Gemini 新聞抓取腳本
-      # (如果您決定使用 OpenAI 版本，請將檔名改為 fetch_news_rss.py)
+      # 步驟 4.1: 執行 Gemini 新聞抓取腳本
       - name: Run News Fetcher (Gemini)
         env:
-          # GEMINI_API_KEY 是您在 GitHub Secrets 中設定的名稱
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/fetch_news_gemini.py
 
+      # 步驟 4.2: 執行 OpenAI (RSS) 新聞抓取腳本
+      - name: Run News Fetcher (OpenAI)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python scripts/fetch_news_rss.py
+
       # 步驟 5: 執行評分分析腳本 (從 Firebase 讀取)
-      # (它需要 Firebase 金鑰，並會輸出 JSON/CSV 到 data/ 資料夾)
       - name: Run Rating Analyzer
         env:
-          # FIREBASE_SERVICE_ACCOUNT 是您在 GitHub Secrets 中設定的名稱
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
-          # 建立 data 資料夾 (如果尚不存在)
           mkdir -p data
-          # 執行腳本並指定輸出路徑
           python scripts/analyze_ratings.py \
             --out data/ratings_export.csv \
             --raw_json data/ratings_raw.json \
             --analyzed_json data/ratings_analyzed.json
 
       # 步驟 6: 將所有變更 (data/ 資料夾中的 JSON/CSV) 推送回 GitHub
-      # (這是最關鍵的一步，這樣 Vercel 才能讀到最新的新聞資料)
       - name: Commit and Push Data
         uses: stefanzweiger/git-auto-commit-action@v5
         with:
-          commit_message: "chore: 自動更新新聞與評分數據"
-          file_pattern: "data/*.*" # 只推送 data 資料夾中的檔案
+          commit_message: "chore: 自動更新新聞與評分數據 (Gemini + OpenAI)"
+          file_pattern: "data/*.*"
