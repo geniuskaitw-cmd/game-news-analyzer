@@ -1,57 +1,47 @@
 # .github/workflows/main.yml
 # 工作流：自動抓取新聞、AI分析、讀取Firebase評分，並推送結果回GitHub
 # 觸發：每天台灣時間 16:00 或 手動觸發
+# 版本：使用 git 指令替代 git-auto-commit-action
 
 name: News Analysis Workflow
 
 on:
-  # 1. 定時觸發：每天 8:00 UTC (台灣時間 16:00)
   schedule:
-    - cron: '0 8 * * *'
-
-  # 2. 允許手動觸發
+    - cron: '0 8 * * *' # 每天 8:00 UTC (台灣時間 16:00)
   workflow_dispatch:
 
 jobs:
   run_analysis:
     runs-on: ubuntu-latest
-
-    # 賦予寫入權限，以便推送 data/ 資料夾
     permissions:
-      contents: write
+      contents: write # 需要寫入權限才能推送
 
     steps:
-      # 步驟 1: 簽出程式碼
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 步驟 2: 設定 Python 3.11 環境
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # 步驟 3: 安裝 Python 依賴函式庫
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install requests feedparser beautifulsoup4 opencc-python-reimplemented
-          pip install google-generativeai openai # 同時安裝 Gemini 和 OpenAI
-          pip install firebase-admin # 用於 analyze_ratings.py
+          pip install google-generativeai openai
+          pip install firebase-admin
 
-      # 步驟 4.1: 執行 Gemini 新聞抓取腳本 (輸出 news_gemini.json)
       - name: Run News Fetcher (Gemini)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/fetch_news_gemini.py
 
-      # 步驟 4.2: 執行 OpenAI (RSS) 新聞抓取腳本 (輸出 news_ai.json)
       - name: Run News Fetcher (OpenAI)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: python scripts/fetch_news_rss.py
 
-      # 步驟 5: 執行評分分析腳本 (讀取 Firebase, 輸出 ratings_*.json/csv)
       - name: Run Rating Analyzer
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
@@ -62,9 +52,30 @@ jobs:
             --raw_json data/ratings_raw.json \
             --analyzed_json data/ratings_analyzed.json
 
-      # 步驟 6: 自動提交並推送 data/ 資料夾中的所有變更
-      - name: Commit and Push Data
-        uses: stefanzweiger/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: 自動更新新聞與評分數據 (Gemini + OpenAI)"
-          file_pattern: "data/*.*" # 指定只提交 data/ 目錄下的檔案
+      # === START: 使用 git 指令提交 ===
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Add data files
+        run: git add data/*.* # 將 data/ 下的所有檔案加入暫存區
+
+      - name: Commit changes
+        run: |
+          # 檢查是否有檔案變更，如果有才 commit
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: 自動更新新聞與評分數據 (Gemini + OpenAI)"
+          else
+            echo "No changes to commit in data/ folder."
+          fi
+
+      - name: Push changes
+        run: |
+          # 檢查是否有 commit 需要 push
+          if git log -1 --pretty=%B | grep -q "chore: 自動更新新聞與評分數據"; then
+            git push
+          else
+            echo "No commits to push."
+          fi
+      # === END: 使用 git 指令提交 ===
