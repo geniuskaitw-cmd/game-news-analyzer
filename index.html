@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>遊戲新聞 AI 儀表板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* 簡單的 loading 動畫 */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 頁籤選中樣式 */
+        .tab-active {
+            border-bottom-color: #3B82F6; /* blue-500 */
+            color: #3B82F6;
+            font-weight: 600;
+        }
+        
+        /* 列印樣式：隱藏不需要的元素 */
+        @media print {
+            body {
+                background-color: #FFFFFF !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            /* 確保新聞列表展開 */
+            .print-container {
+                display: block !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 min-h-screen">
+
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[100]"></div>
+
+    <header class="bg-white shadow-md no-print">
+        <div class="container mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
+            <h1 class="text-2xl font-bold text-gray-800">遊戲新聞 AI 儀表板</h1>
+            <div class="flex items-center gap-4">
+                <button id="export-png-btn" class="text-sm bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md shadow">
+                    匯出 PNG
+                </button>
+                <button id="export-pdf-btn" class="text-sm bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md shadow">
+                    匯出 PDF (列印)
+                </button>
+                <div id="loading-indicator" class="loader hidden"></div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-gray-800 text-white sticky top-0 z-50 no-print">
+        <div class="container mx-auto px-4 py-3 flex flex-wrap gap-x-6 gap-y-3 items-center">
+            <div>
+                <label for="date-select" class="text-sm font-medium mr-2">選擇日期:</label>
+                <input type="date" id="date-select" class="bg-gray-700 border-gray-600 rounded-md py-1 px-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="flex border-b border-gray-700">
+                <button id="tab-openai" data-tab="openai" class="tab-btn px-4 py-2 text-sm text-gray-300 border-b-2 border-transparent hover:text-white tab-active">
+                    OpenAI 分析
+                </button>
+                <button id="tab-gemini" data-tab="gemini" class="tab-btn px-4 py-2 text-sm text-gray-300 border-b-2 border-transparent hover:text-white">
+                    Gemini 分析
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-6">
+        
+        <div id="news-list-container" class="space-y-4 print-container">
+            <div id="message-area" class="text-center text-gray-500 py-10">
+                請選擇日期以載入新聞...
+            </div>
+        </div>
+        
+        <div id="pagination-container" class="flex justify-center items-center gap-2 mt-6 py-4 no-print">
+            </div>
+        
+    </main>
+
+    <script type="module">
+        // 載入 Firebase 核心 SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        // 載入 Auth (用於登入)
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // 載入 Firestore (用於寫入評分)
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- 應用程式主邏輯 ---
+        const app = {
+            // 1. 狀態管理
+            db: null,
+            auth: null,
+            isAuthReady: false,
+            isLoading: false,
+            
+            currentDate: null, // YYYY-MM-DD 格式
+            currentTab: 'openai', // 'openai' 或 'gemini'
+            currentPage: 1,
+            itemsPerPage: 10,
+            
+            geminiData: null, // 儲存 news_gemini.json 的內容
+            openaiData: null, // 儲存 news_ai.json 的內容
+
+            // 2. 初始化 (程式進入點)
+            async initialize() {
+                console.log("儀表板初始化...");
+                this.initializeFirebase();
+                this.bindEvents();
+                
+                // 設置日期選擇器預設為今天 (台灣時間)
+                const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }));
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                this.currentDate = `${yyyy}-${mm}-${dd}`;
+                
+                document.getElementById('date-select').value = this.currentDate;
+                
+                // 啟動時自動載入今天的資料
+                this.loadDataForDate(this.currentDate);
+            },
+
+            // 3. Firebase 初始化 (與遊戲專案完全相同)
+            initializeFirebase() {
+                try {
+                    const firebaseConfig = {
+                      apiKey: "AIzaSyAgXqF-jPd8FpTLzuXuiDfDD4vhGO28d7M",
+                      authDomain: "rankanalyzer-1a95d.firebaseapp.com",
+                      projectId: "rankanalyzer-1a95d",
+                      storageBucket: "rankanalyzer-1a95d.appspot.com", 
+                      messagingSenderId: "825847760",
+                      appId: "1:825847760:web:1606401fd848f9c962d3d5"
+                    };
+
+                    const firebaseApp = initializeApp(firebaseConfig);
+                    this.db = getFirestore(firebaseApp);
+                    this.auth = getAuth(firebaseApp);
+
+                    onAuthStateChanged(this.auth, (user) => {
+                        if (user) {
+                            console.log("Firebase 驗證成功:", user.uid);
+                            this.isAuthReady = true;
+                        } else {
+                            this.authenticate();
+                        }
+                    });
+                } catch (error) {
+                    console.error("Firebase 初始化失敗:", error);
+                    this.showError("Firebase 初始化失敗。");
+                }
+            },
+
+            // 4. Firebase 登入
+            async authenticate() {
+                try {
+                    console.log("嘗試匿名登入...");
+                    await signInAnonymously(this.auth);
+                } catch (error) {
+                    console.error("Firebase 匿名登入失敗:", error);
+                    this.showError("Firebase 登入失敗，無法使用評分功能。");
+                }
+            },
+
+            // 5. 綁定所有 DOM 事件監聽
+            bindEvents() {
+                // 日期選擇器
+                document.getElementById('date-select').addEventListener('change', (e) => this.handleDateChange(e));
+                
+                // 頁籤按鈕
+                document.getElementById('tab-openai').addEventListener('click', (e) => this.handleTabClick(e));
+                document.getElementById('tab-gemini').addEventListener('click', (e) => this.handleTabClick(e));
+                
+                // 匯出按鈕
+                document.getElementById('export-png-btn').addEventListener('click', () => this.handleExportPNG());
+                document.getElementById('export-pdf-btn').addEventListener('click', () => this.handleExportPDF());
+                
+                // 分頁按鈕 (事件委派)
+                document.getElementById('pagination-container').addEventListener('click', (e) => this.handlePaginationClick(e));
+                
+                // 評分按鈕 (事件委派)
+                document.getElementById('news-list-container').addEventListener('click', (e) => this.handleRatingClick(e));
+            },
+
+            // 6. 核心資料載入邏輯 (需求 1 & 4)
+            async loadDataForDate(dateString) {
+                if (this.isLoading) return;
+                this.setLoading(true);
+                this.currentDate = dateString;
+                
+                // 重設資料
+                this.geminiData = null;
+                this.openaiData = null;
+                this.currentPage = 1;
+                this.renderMessage("載入中...", true);
+
+                // 將 YYYY-MM-DD 轉為 YYYYMMDD
+                const dateForFile = dateString.replace(/-/g, '');
+                
+                try {
+                    const [geminiResult, openaiResult] = await Promise.all([
+                        this.fetchJson(`data/news_gemini_${dateForFile}.json`),
+                        this.fetchJson(`data/news_ai_${dateForFile}.json`)
+                    ]);
+                    
+                    this.geminiData = geminiResult;
+                    this.openaiData = openaiResult;
+
+                    // 檢查是否至少有一個檔案成功載入
+                    if (!this.geminiData && !this.openaiData) {
+                        // 需求 1: 處理 404 (兩個檔案都不存在)
+                        this.renderMessage("讀取新聞失敗或檔案不存在 (404)");
+                    } else {
+                        // 成功，渲染當前頁籤
+                        this.renderUI();
+                    }
+                    
+                } catch (error) {
+                    console.error("載入資料時發生嚴重錯誤:", error);
+                    this.renderMessage(`讀取新聞時發生錯誤: ${error.message}`);
+                } finally {
+                    this.setLoading(false);
+                }
+            },
+            
+            // 7. 渲染 UI (主函式)
+            renderUI() {
+                // 根據當前頁籤選擇要渲染的資料
+                const dataToShow = (this.currentTab === 'gemini') ? this.geminiData : this.openaiData;
+                
+                if (!dataToShow || !dataToShow.all || dataToShow.all.length === 0) {
+                    this.renderMessage(`(${this.currentTab}) 當天無重大新聞。`);
+                    this.renderPagination(0); // 清空分頁
+                    return;
+                }
+                
+                // 渲染新聞列表 (需求 2)
+                this.renderNewsList(dataToShow.all);
+                
+                // 渲染分頁 (需求 3)
+                this.renderPagination(dataToShow.all.length);
+            },
+            
+            // 8. 渲染新聞列表 (需求 2)
+            renderNewsList(newsItems) {
+                const container = document.getElementById('news-list-container');
+                container.innerHTML = ''; // 清空
+                
+                const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+                const endIndex = this.currentPage * this.itemsPerPage;
+                const pageItems = newsItems.slice(startIndex, endIndex);
+                
+                if (pageItems.length === 0) {
+                     this.renderMessage("此頁面無資料。");
+                     return;
+                }
+
+                pageItems.forEach(item => {
+                    // 格式化時間 (pub_ts)
+                    const pubDate = new Date(item.pub_ts).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
+                    
+                    // 格式化 AI 評分 (final_score 或 ai_score)
+                    const aiScore = item.final_score || item.ai_score || 0;
+                    const scoreColor = aiScore >= 4 ? 'bg-red-500' : (aiScore >= 3 ? 'bg-blue-500' : 'bg-gray-400');
+
+                    // 評分按鈕 HTML
+                    let ratingButtonsHtml = '';
+                    for (let i = 1; i <= 5; i++) {
+                        ratingButtonsHtml += `
+                            <button data-action="rate" data-news-id="${item.id}" data-score="${i}"
+                                    class="rating-btn text-lg text-gray-300 hover:text-yellow-400 focus:outline-none"
+                                    title="評 ${i} 分">
+                                ★
+                            </button>
+                        `;
+                    }
+
+                    const cardHtml = `
+                        <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-gray-200 hover:border-blue-400">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-gray-900">
+                                    ${item.title}
+                                </h3>
+                                <div class="flex-shrink-0 ml-4 text-white text-lg font-bold ${scoreColor} rounded-md px-3 py-1">
+                                    ${aiScore.toFixed(1)}
+                                </div>
+                            </div>
+                            
+                            <div class="text-xs text-gray-500 mb-3">
+                                <span>${item.source}</span> | <span>${pubDate}</span>
+                            </div>
+                            
+                            <div class="space-y-2 text-sm text-gray-700">
+                                <p><strong class="text-gray-900">[摘要]</strong> ${item.ai_summary}</p>
+                                <p><strong class="text-gray-900">[影響]</strong> ${item.ai_impact}</p>
+                            </div>
+                            
+                            <div class="flex justify-between items-center mt-4 pt-3 border-t">
+                                <div class="rating-widget" data-news-id="${item.id}">
+                                    <span class="text-sm font-medium mr-2">您的評分:</span>
+                                    ${ratingButtonsHtml}
+                                </div>
+                                
+                                <a href="${item.url}" target="_blank" rel="noopener noreferrer"
+                                   class="text-sm text-blue-500 hover:underline">
+                                    原文連結 &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += cardHtml;
+                });
+            },
+            
+            // 9. 渲染分頁 (需求 3)
+            renderPagination(totalItems) {
+                const container = document.getElementById('pagination-container');
+                container.innerHTML = ''; // 清空
+                if (totalItems === 0) return;
+
+                const totalPages = Math.ceil(totalItems / this.itemsPerPage);
+                if (totalPages <= 1) return; // 只有一頁時不顯示分頁
+
+                // 上一頁按鈕
+                const prevDisabled = (this.currentPage === 1) ? 'disabled' : '';
+                container.innerHTML += `
+                    <button data-page="${this.currentPage - 1}" ${prevDisabled}
+                            class="pagination-btn px-4 py-2 text-sm font-medium bg-white rounded-md shadow-sm border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        &larr; 上一頁
+                    </button>
+                `;
+                
+                // 頁碼 (簡化版：只顯示當前頁)
+                container.innerHTML += `
+                    <span class="px-4 py-2 text-sm text-gray-700">
+                        第 ${this.currentPage} / ${totalPages} 頁
+                    </span>
+                `;
+
+                // 下一頁按鈕
+                const nextDisabled = (this.currentPage === totalPages) ? 'disabled' : '';
+                container.innerHTML += `
+                    <button data-page="${this.currentPage + 1}" ${nextDisabled}
+                            class="pagination-btn px-4 py-2 text-sm font-medium bg-white rounded-md shadow-sm border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        下一頁 &rarr;
+                    </button>
+                `;
+            },
+            
+            // 10. 事件處理函式
+            handleDateChange(event) {
+                const newDate = event.target.value;
+                if (newDate && newDate !== this.currentDate) {
+                    this.loadDataForDate(newDate);
+                }
+            },
+            
+            handleTabClick(event) {
+                const newTab = event.target.dataset.tab;
+                if (newTab && newTab !== this.currentTab) {
+                    this.currentTab = newTab;
+                    this.currentPage = 1; // 切換頁籤時回到第一頁
+                    
+                    // 更新頁籤樣式
+                    document.querySelectorAll('.tab-btn').forEach(btn => {
+                        btn.classList.remove('tab-active');
+                    });
+                    event.target.classList.add('tab-active');
+                    
+                    // 重新渲染 UI
+                    this.renderUI();
+                }
+            },
+            
+            handlePaginationClick(event) {
+                const button = event.target.closest('.pagination-btn');
+                if (!button || button.disabled) return;
+                
+                const newPage = parseInt(button.dataset.page, 10);
+                if (newPage !== this.currentPage) {
+                    this.currentPage = newPage;
+                    this.renderUI();
+                    // 點擊分頁後，滾動到頁面頂部
+                    window.scrollTo(0, 0);
+                }
+            },
+            
+            async handleRatingClick(event) {
+                const button = event.target.closest('[data-action="rate"]');
+                if (!button) return;
+                
+                if (!this.isAuthReady) {
+                    this.showError("Firebase 尚未登入，無法評分。");
+                    return;
+                }
+                
+                const newsId = button.dataset.newsId;
+                const score = parseInt(button.dataset.score, 10);
+                const modelVersion = this.currentTab; // 關鍵 A/B 測試邏輯
+                const dateString = this.currentDate;
+                
+                // 視覺回饋：將同一組按鈕設為選中狀態
+                const buttonGroup = button.closest('.rating-widget');
+                buttonGroup.querySelectorAll('.rating-btn').forEach((btn, index) => {
+                    if (index < score) {
+                        btn.classList.add('text-yellow-400');
+                        btn.classList.remove('text-gray-300');
+                    } else {
+                        btn.classList.remove('text-yellow-400');
+                        btn.classList.add('text-gray-300');
+                    }
+                });
+
+                console.log(`儲存評分: ID=${newsId}, Score=${score}, Model=${modelVersion}, Date=${dateString}`);
+                this.showLoadingMessage("正在儲存您的評分...");
+
+                try {
+                    // 使用 news_id + model_version 作為 Firebase 文件 ID，確保每個模型對同一新聞只有一筆評分
+                    const docId = `${newsId}_${modelVersion}`;
+                    const docRef = doc(this.db, "news_ratings", docId);
+                    
+                    await setDoc(docRef, {
+                        news_id: newsId,
+                        score: score,
+                        model_version: modelVersion,
+                        date_str: dateString,
+                        created_at: serverTimestamp(),
+                        user_id: this.auth.currentUser.uid // 儲存匿名用戶 ID
+                    });
+                    
+                    this.showSuccess("評分已儲存！");
+                    
+                } catch (error) {
+                    console.error("寫入 Firestore 失敗:", error);
+                    this.showError("儲存評分失敗。");
+                }
+            },
+            
+            // 需求 5: 匯出 PNG (使用 html2canvas)
+            handleExportPNG() {
+                this.showLoadingMessage("正在生成 PNG 圖片...");
+                const targetElement = document.getElementById('news-list-container');
+                
+                html2canvas(targetElement, {
+                    scale: 1.5, // 提高解析度
+                    useCORS: true, // 允許跨域圖片 (如果有的話)
+                    backgroundColor: '#F3F4F6' // 設置背景色
+                }).then(canvas => {
+                    const imageUrl = canvas.toDataURL('image/png');
+                    
+                    // 建立下載連結
+                    const link = document.createElement('a');
+                    link.href = imageUrl;
+                    link.download = `news_export_${this.currentDate}_${this.currentTab}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    this.showSuccess("PNG 已匯出！");
+                }).catch(err => {
+                    console.error("匯出 PNG 失敗:", err);
+                    this.showError("匯出 PNG 失敗。");
+                });
+            },
+            
+            // 需求 5: 匯出 PDF (使用瀏覽器列印)
+            handleExportPDF() {
+                // 觸發瀏覽器的列印功能，使用者可自行選擇「另存為 PDF」
+                window.print();
+            },
+            
+            // 11. 輔助工具
+            setLoading(isLoading) {
+                this.isLoading = isLoading;
+                document.getElementById('loading-indicator').classList.toggle('hidden', !isLoading);
+            },
+            
+            renderMessage(message, isLoading = false) {
+                const container = document.getElementById('news-list-container');
+                let content = '';
+                if (isLoading) {
+                    content = `
+                        <div class="flex justify-center items-center py-10">
+                            <div class="loader"></div>
+                            <p class="ml-4 text-gray-500">${message}</p>
+                        </div>
+                    `;
+                } else {
+                    content = `<div class="text-center text-gray-500 py-10">${message}</div>`;
+                }
+                container.innerHTML = content;
+            },
+
+            async fetchJson(url) {
+                try {
+                    const absoluteUrl = new URL(url, window.location.origin);
+                    const response = await fetch(absoluteUrl, { cache: 'no-cache' });
+                    
+                    // 需求 1: 處理 404
+                    if (response.status === 404) {
+                        console.warn(`找不到檔案: ${absoluteUrl}`);
+                        return null; // 返回 null，而不是拋出錯誤
+                    }
+                    if (!response.ok) {
+                        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error(`Fetch 錯誤 ${url}:`, error);
+                    throw error; // 拋出其他錯誤 (例如網路中斷)
+                }
+            },
+
+            showError(message) {
+                this.showMessage(message, 'bg-red-500');
+            },
+            showSuccess(message) {
+                this.showMessage(message, 'bg-green-500');
+            },
+            showLoadingMessage(message) {
+                this.showMessage(message, 'bg-blue-500', 0);
+            },
+            showMessage(message, bgColor, duration = 3000) {
+                const container = document.getElementById('toast-container');
+                const oldLoading = document.getElementById('toast-loading');
+                if (oldLoading) oldLoading.remove();
+
+                const toast = document.createElement('div');
+                toast.id = (duration === 0) ? 'toast-loading' : '';
+                toast.className = `p-4 rounded-md text-white shadow-lg transform transition-all ${bgColor}`; 
+                toast.textContent = message;
+
+                container.appendChild(toast);
+
+                if (duration > 0) {
+                    setTimeout(() => {
+                        toast.remove();
+                    }, duration);
+                }
+            }
+        };
+
+        // DOM 載入完成後，啟動應用程式
+        document.addEventListener('DOMContentLoaded', () => {
+            app.initialize();
+        });
+
+    </script>
+</body>
+</html>
