@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import os, re, time, json, hashlib, random
 import sys
+# === START: 修正 NameError ===
+from pathlib import Path # <--- 新增導入 Path
+# === END: 修正 NameError ===
 from datetime import datetime, timezone, timedelta
 from urllib.parse import urlparse, urljoin
 
@@ -292,10 +295,9 @@ def main():
     debug_print("=== fetch_news_gemini.py Start ===")
     
     # === START: 檔名修改 ===
-    # 獲取當前 UTC 日期字串 YYYYMMDD
     today_str = datetime.now(timezone.utc).strftime("%Y%m%d")
     output_filename = f"news_gemini_{today_str}.json"
-    output_path = Path("data") / output_filename
+    output_path = Path("data") / output_filename # <-- Path 物件現在可用了
     # === END: 檔名修改 ===
 
     items=[]
@@ -360,21 +362,16 @@ def main():
         s, i = ai_summary_and_impact(it["title"], it["fulltext"])
         it["ai_summary"] = s
         it["ai_impact"] = i
-        # 可以選擇移除全文以節省空間
-        # it["fulltext"] = "" 
         time.sleep(1)
 
     top10_ids = [it["id"] for it in final_items[:10]]
     output_data = {"all": final_items, "top10": top10_ids}
     
     os.makedirs("data", exist_ok=True)
-    # output_path = "data/news_gemini.json" # <--- 原始檔名
     try:
-        # === START: 檔名修改 ===
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(output_data, f, ensure_ascii=False, indent=2)
-        debug_print(f"[OK] 成功將 {len(final_items)} 篇文章寫入 {output_path}") # <-- 使用新檔名
-        # === END: 檔名修改 ===
+        debug_print(f"[OK] 成功將 {len(final_items)} 篇文章寫入 {output_path}") 
     except Exception as e:
         debug_print(f"[FATAL ERROR] 無法寫入最終 JSON 檔案 {output_path}: {e}")
 
