@@ -133,18 +133,20 @@
                 this.initializeFirebase();
                 this.bindEvents();
                 
-                // 設置日期選擇器預設為今天 (台灣時間)
-                const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }));
-                const yyyy = today.getFullYear();
-                const mm = String(today.getMonth() + 1).padStart(2, '0');
-                const dd = String(today.getDate()).padStart(2, '0');
+                // --- 需求 3：設置日期選擇器預設為 "昨天" (台灣時間) ---
+                const todayInTaipei = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }));
+                const yesterdayInTaipei = new Date(todayInTaipei);
+                yesterdayInTaipei.setDate(todayInTaipei.getDate() - 1); // 自動處理跨月/跨年
+                
+                const yyyy = yesterdayInTaipei.getFullYear();
+                const mm = String(yesterdayInTaipei.getMonth() + 1).padStart(2, '0');
+                const dd = String(yesterdayInTaipei.getDate()).padStart(2, '0');
                 this.currentDate = `${yyyy}-${mm}-${dd}`;
                 
                 document.getElementById('date-select').value = this.currentDate;
+                // --- 需求 3 結束 ---
                 
-                // 【修正】刪除 window.app_expandContent，因為已改用事件委派
-                
-                // 啟動時自動載入今天的資料
+                // 啟動時自動載入 "昨天" 的資料
                 this.loadDataForDate(this.currentDate);
             },
 
@@ -205,7 +207,7 @@
                 // 分頁按鈕 (事件委派)
                 document.getElementById('pagination-container').addEventListener('click', (e) => this.handlePaginationClick(e));
                 
-                // 【修正】新聞卡片點擊 (事件委派: 評分 + 展開)
+                // 新聞卡片點擊 (事件委派: 評分 + 展開)
                 document.getElementById('news-list-container').addEventListener('click', (e) => this.handleNewsCardClick(e));
             },
 
@@ -302,17 +304,27 @@
                         `;
                     }
                     
-                    // 需求 3：產生可展開的摘要和影響 HTML
+                    // 需求 1 (展開/收合)：產生可展開的摘要和影響 HTML
                     // 您可以在這裡調整 50 這個數字
                     const summaryHtml = this.generateExpandableHtml(item.ai_summary, 'summary', index, 50);
                     const impactHtml = this.generateExpandableHtml(item.ai_impact, 'impact', index, 50);
+
+                    // --- 需求 2：移除標題中 " | {source}" 的部分 ---
+                    let displayTitle = item.title;
+                    if (item.source) {
+                        // 1. 轉義 source 中的 RegEx 特殊字元
+                        const escapedSource = item.source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        // 2. 建立 RegEx，尋找結尾的 " | source"
+                        const regex = new RegExp(`\\s*\\|\\s*${escapedSource}\\s*$`, 'i');
+                        displayTitle = displayTitle.replace(regex, '').trim();
+                    }
+                    // --- 需求 2 結束 ---
 
                     const cardHtml = `
                         <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-gray-200 hover:border-blue-400">
                             <div class="flex justify-between items-start mb-2">
                                 <h3 class="text-xl font-bold text-gray-900">
-                                    ${item.title}
-                                </h3>
+                                    ${displayTitle} </h3>
                                 <div class="flex-shrink-0 ml-4 text-white text-lg font-bold ${scoreColor} rounded-md px-3 py-1">
                                     ${aiScore.toFixed(1)}
                                 </div>
@@ -328,16 +340,14 @@
                                         摘要
                                     </span>
                                     <div class="text-gray-700">
-                                        ${summaryHtml}
-                                    </div>
+                                        ${summaryHtml} </div>
                                 </div>
                                 <div>
                                     <span class="inline-block bg-pink-100 text-pink-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full mb-1">
                                         影響
                                     </span>
                                     <div class="text-gray-700">
-                                        ${impactHtml}
-                                    </div>
+                                        ${impactHtml} </div>
                                 </div>
                             </div>
                             
@@ -401,7 +411,7 @@
                 }
             },
             
-            // 【修正】頁籤切換：主動切換 text-white 和 text-gray-300
+            // 頁籤切換：主動切換 text-white 和 text-gray-300
             handleTabClick(event) {
                 const newTab = event.target.dataset.tab;
                 if (newTab && newTab !== this.currentTab) {
@@ -439,29 +449,36 @@
                 }
             },
             
-            // 【修正】將 handleRatingClick 重新命名為 handleNewsCardClick
-            // 並同時處理「評分」和「展開」
+            // --- 需求 1 (展開/收合)：修改點擊處理 ---
             async handleNewsCardClick(event) {
                 
-                // 檢查是否點擊了「展開」按鈕
-                const expandButton = event.target.closest('[data-action="expand"]');
-                if (expandButton) {
-                    const targetId = expandButton.dataset.targetId;
-                    const fullTextJson = expandButton.dataset.fullText;
-                    
+                // 檢查是否點擊了「展開/收合」按鈕
+                const toggleButton = event.target.closest('[data-action="toggle-text"]');
+                if (toggleButton) {
                     try {
-                        // dataset.fullText 會自動 un-escape HTML (例如 &quot; -> ")
-                        // 接著我們 JSON.parse 來還原文字
-                        const fullText = JSON.parse(fullTextJson);
-                        this.expandContent(targetId, fullText);
+                        const textElement = toggleButton.parentElement.querySelector('p'); // 找到 <p>
+                        const state = toggleButton.dataset.state;
+                        
+                        if (state === 'short') {
+                            // 展開
+                            const fullText = JSON.parse(toggleButton.dataset.fullText);
+                            textElement.textContent = fullText;
+                            toggleButton.textContent = '收合';
+                            toggleButton.dataset.state = 'full';
+                        } else {
+                            // 收合
+                            const shortText = JSON.parse(toggleButton.dataset.shortText);
+                            textElement.textContent = shortText;
+                            toggleButton.textContent = '展開';
+                            toggleButton.dataset.state = 'short';
+                        }
                     } catch (e) {
-                        console.error("無法解析展開文字:", e, fullTextJson);
-                        this.expandContent(targetId, "載入失敗"); // 顯示錯誤
+                        console.error("無法切換文字:", e);
                     }
                     return; // 結束，不處理評分
                 }
 
-                // 檢查是否點擊了「評分」按鈕
+                // 檢查是否點擊了「評分」按鈕 (邏輯不變)
                 const ratingButton = event.target.closest('[data-action="rate"]');
                 if (ratingButton) {
                     if (!this.isAuthReady) {
@@ -471,10 +488,10 @@
                     
                     const newsId = ratingButton.dataset.newsId;
                     const score = parseInt(ratingButton.dataset.score, 10);
-                    const modelVersion = this.currentTab; // 關鍵 A/B 測試邏輯
+                    const modelVersion = this.currentTab; 
                     const dateString = this.currentDate;
                     
-                    // 視覺回饋：將同一組按鈕設為選中狀態
+                    // 視覺回饋
                     const buttonGroup = ratingButton.closest('.rating-widget');
                     buttonGroup.querySelectorAll('.rating-btn').forEach((btn, index) => {
                         if (index < score) {
@@ -490,7 +507,6 @@
                     this.showLoadingMessage("正在儲存您的評分...");
 
                     try {
-                        // 使用 news_id + model_version 作為 Firebase 文件 ID
                         const docId = `${newsId}_${modelVersion}`;
                         const docRef = doc(this.db, "news_ratings", docId);
                         
@@ -500,7 +516,7 @@
                             model_version: modelVersion,
                             date_str: dateString,
                             created_at: serverTimestamp(),
-                            user_id: this.auth.currentUser.uid // 儲存匿名用戶 ID
+                            user_id: this.auth.currentUser.uid 
                         });
                         
                         this.showSuccess("評分已儲存！");
@@ -545,46 +561,37 @@
                 window.print();
             },
             
-            // --- 需求 3：展開/收合功能 相關函式 ---
+            // --- 需求 1 (展開/收合)：修改 HTML 產生邏輯 ---
             
-            // 【修正】點擊「展開」時呼叫的函式 (現在由 handleNewsCardClick 呼叫)
-            expandContent(elementId, fullText) {
-                const el = document.getElementById(elementId);
-                if (el) {
-                    // 清空 '... 展開' 按鈕
-                    el.innerHTML = ''; 
-                    // 建立 <p> 標籤並安全地設置其文字內容 (防止 XSS)
-                    const p = document.createElement('p');
-                    p.textContent = fullText;
-                    el.appendChild(p);
-                }
-            },
+            // 點擊「展開」時呼叫的函式 (現在由 handleNewsCardClick 處理)
+            // expandContent() 函式已被整合到 handleNewsCardClick，故刪除
 
-            // 【修正】產生「摘要/影響」HTML 的輔助函式
+            // 產生「摘要/影響」HTML 的輔助函式
             generateExpandableHtml(text, type, index, maxLength = 50) { // 預設 50 字
                 const uniqueId = `${type}-${index}`;
                 const safeText = text || ''; // 確保 text 不是 null 或 undefined
 
                 if (!safeText || safeText.length <= maxLength) {
-                    // 文字很短，直接回傳
+                    // 文字很短，直接回傳 (不需要展開按鈕)
                     return `<div id="${uniqueId}"><p>${this.escapeHTML(safeText)}</p></div>`;
                 }
                 
-                // 縮短文字
-                const shortText = this.escapeHTML(safeText.substring(0, maxLength)) + '...';
+                // 縮短文字 (含 ...)
+                const shortTextWithEllipsis = this.escapeHTML(safeText.substring(0, maxLength) + '...');
                 
-                // 【修正】為了安全地將文字放入 data- 屬性，
-                // 1. 先轉成 JSON 字串 (處理內部引號)
-                // 2. 再 HTML escape (處理屬性引號)
-                const fullTextHtmlEscaped = this.escapeHTML(JSON.stringify(safeText));
+                // 為了安全地將文字放入 data- 屬性：
+                // 1. 準備好要儲存的 "縮短" 和 "完整" 文字
+                const shortTextForData = this.escapeHTML(JSON.stringify(safeText.substring(0, maxLength) + '...'));
+                const fullTextForData = this.escapeHTML(JSON.stringify(safeText));
                 
-                // 【修正】回傳 "縮短文字" + "帶 data- 屬性的按鈕" (移除 onclick)
+                // 回傳包含 <p> 和 <button> 的 HTML
                 return `
                     <div id="${uniqueId}">
-                        <p class="inline">${shortText}</p>
-                        <button data-action="expand"
-                                data-target-id="${uniqueId}"
-                                data-full-text="${fullTextHtmlEscaped}"
+                        <p class="inline">${shortTextWithEllipsis}</p>
+                        <button data-action="toggle-text"
+                                data-state="short"
+                                data-short-text="${shortTextForData}"
+                                data-full-text="${fullTextForData}"
                                 class="text-blue-500 hover:underline text-sm font-medium ml-1">
                             展開
                         </button>
