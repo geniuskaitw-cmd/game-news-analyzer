@@ -151,8 +151,8 @@ def ai_summary_and_impact(title,fulltext,retries=2):
     text=fulltext
     prompt=f"""請務必只輸出 JSON，鍵名必須固定為英文，不可翻譯：
 {{
- "summary":"一句話摘要（繁體，<=120字）",
- "impact":"對市場/產業/玩家/業者的影響（繁體，<=120字）"
+ "summary":"一段話摘要，必須把原文中的關鍵信息跟核心意指描寫出來（繁體，<=250字）",
+ "impact":"對市場/產業/玩家/業者的影響，必須深刻且是全方位分析過的結果（繁體，<=250字）"
 }}
 標題:{title}
 內文:{text}"""
