@@ -16,11 +16,11 @@ cc = OpenCC("s2t")
 HEADERS = {"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"}
 MAX_AGE_DAYS = 3
 
-KEYWORDS = {"上市":3,"IPO":3,"財報":3,"季報":3,"營收":2,"利潤":2,"成長":2,"破紀錄":2,
-            "投資":2,"融資":2,"收購":2,"併購":2,"新遊戲":2,"發表":2,"全球":1,"海外拓展":1,
-            "騰訊":2,"NetEase":2,"任天堂":2,"Sony":1,"Microsoft":1,"Google":2,"Apple":2,
-            "破圈":2,"IP授權":2,"出海":1}
-BLACKLIST = {"cosplay":-2,"八卦":-2,"爆料":-2,"玩家惡搞":-2,"公會事件":-1,"bug":-1,"外掛":-1,
+KEYWORDS = {"上市":2,"IPO":2,"財報":1,"季報":1,"營收":1,"利潤":1,"成長":1,"破紀錄":2,
+            "投資":2,"融資":1,"收購":2,"併購":2,"新遊戲":2,"發表":2,"全球":1,"海外拓展":1,
+            "騰訊":1,"NetEase":1,"任天堂":1,"Sony":1,"Microsoft":1,"Google":1,"Apple":1,
+            "破圈":1,"IP授權":2,"出海":1}
+BLACKLIST = {"cosplay":-1,"八卦":-1,"爆料":-1,"玩家惡搞":-1,"公會事件":-1,"bug":-2,"外掛":-2,
              "攻略":-2,"彩蛋":-2,"小型比賽":-1}
 
 SOURCES = [
@@ -194,8 +194,8 @@ def ai_summary_and_impact(title,fulltext,retries=3):
     text = fulltext
     prompt=f"""請務必只輸出 JSON，鍵名必須固定為英文，不可翻譯：
 {{
- "summary":"一句話摘要（繁體，<=120字）",
- "impact":"對市場/產業/玩家/業者的影響（繁體，<=120字）"
+ "summary":"一段話摘要，必須把原文中的關鍵信息跟核心意指描寫出來（繁體，<=300字）",
+ "impact":"對市場/產業/玩家/業者的影響，必須深刻且是全方位分析過的結果（繁體，<=300字）"
 }}
 標題:{title}
 內文:{text}"""
@@ -204,7 +204,7 @@ def ai_summary_and_impact(title,fulltext,retries=3):
             r=client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[{"role":"user","content":prompt}],
-                max_tokens=400,timeout=90,
+                max_tokens=800,timeout=90,
                 response_format={"type": "json_object"}
             )
             msg = r.choices[0].message
