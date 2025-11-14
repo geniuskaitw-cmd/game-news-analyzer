@@ -1,12 +1,28 @@
 {
   "rows": [
     {
+      "news_id": "0094fe12fd8963cc7503f88b5d41fe01",
+      "model_version": "openai",
+      "score": 3,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:24:10.842000+00:00"
+    },
+    {
       "news_id": "01f2a3c47c9d0cc77831f3ccb8abf7c8",
       "model_version": "openai",
       "score": 3,
       "user_id": "X6f3sWSZ9kRqPvOaw3vg59K7jPR2",
       "date_str": "2025-11-03",
       "created_at": "2025-11-04 10:53:00.352000+00:00"
+    },
+    {
+      "news_id": "23e364eada150934941177c6511256f8",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:22:21.299000+00:00"
     },
     {
       "news_id": "296bc1fb2e51bcc878cec614c7a7dc8a",
@@ -17,12 +33,52 @@
       "created_at": "2025-11-04 08:21:53.782000+00:00"
     },
     {
+      "news_id": "2b4652b4f0f5c406efa39ffd39ada562",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:40:48.103000+00:00"
+    },
+    {
+      "news_id": "2c7b744badf2a42506db04253db6a40a",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:23:13.967000+00:00"
+    },
+    {
+      "news_id": "2d297fbd4ad05a6169ebcb348046a7c2",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:41:47.349000+00:00"
+    },
+    {
       "news_id": "2dc4a05b2471cf1bb55804eb2df13adc",
       "model_version": "openai",
       "score": 3,
       "user_id": "R5Fp1EK3FHbOJeYu9yJyq6wwzON2",
       "date_str": "2025-11-03",
       "created_at": "2025-11-04 08:26:17.772000+00:00"
+    },
+    {
+      "news_id": "30f71eb6afcecf8ea6473af61eaa5dc8",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:40:27.051000+00:00"
+    },
+    {
+      "news_id": "3f90dabb317518c394facafadb6b9d8b",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:40:59.247000+00:00"
     },
     {
       "news_id": "3faa9cfee721745bfaf7ba355513de77",
@@ -33,12 +89,36 @@
       "created_at": "2025-11-04 08:26:13.385000+00:00"
     },
     {
+      "news_id": "4794c18b09e7f1fda61f4d474d53621f",
+      "model_version": "openai",
+      "score": 2,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:22:01.727000+00:00"
+    },
+    {
+      "news_id": "4ca7263d19ded8da3b41afe9763988b2",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:40:35.837000+00:00"
+    },
+    {
       "news_id": "4f116e297d742674b9082f88cf62cee6",
       "model_version": "openai",
       "score": 3,
       "user_id": "R5Fp1EK3FHbOJeYu9yJyq6wwzON2",
       "date_str": "2025-11-03",
       "created_at": "2025-11-04 08:26:22.959000+00:00"
+    },
+    {
+      "news_id": "4fce1ae72b62eda36178ae7c0402bd04",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:23:10.406000+00:00"
     },
     {
       "news_id": "5694762d98507d8a8bdeb5a672335e89",
@@ -57,6 +137,14 @@
       "created_at": "2025-11-04 08:25:11.979000+00:00"
     },
     {
+      "news_id": "6c5cb01d822374340c5cbc8f44f1e5a9",
+      "model_version": "openai",
+      "score": 3,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:40:51.287000+00:00"
+    },
+    {
       "news_id": "787cbcfe749e6c4d43a3ff9e9ec0ea26",
       "model_version": "openai",
       "score": 3,
@@ -71,6 +159,14 @@
       "user_id": "hscSnLQzQhY7CnNCNRKfaJj16WW2",
       "date_str": "2025-11-11",
       "created_at": "2025-11-12 06:50:38.927000+00:00"
+    },
+    {
+      "news_id": "86511b0e4b10e3708f12df52b7f005d0",
+      "model_version": "openai",
+      "score": 3,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:40:53.677000+00:00"
     },
     {
       "news_id": "8852087fd8e170545743b308ea193242",
@@ -113,12 +209,76 @@
       "created_at": "2025-11-06 03:38:04.486000+00:00"
     },
     {
+      "news_id": "bb9ae4fc530437f2faaeb7f127210eb5",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:42:15.158000+00:00"
+    },
+    {
       "news_id": "bd02f76ad743fc436160db6e69ba01e0",
       "model_version": "openai",
       "score": 4,
       "user_id": "R5Fp1EK3FHbOJeYu9yJyq6wwzON2",
       "date_str": "2025-11-03",
       "created_at": "2025-11-04 08:26:34.293000+00:00"
+    },
+    {
+      "news_id": "bf7f53de0a9105a968f57d4bb0ef6c57",
+      "model_version": "openai",
+      "score": 3,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:40:31.279000+00:00"
+    },
+    {
+      "news_id": "c658bacf35076a4bc294bdc12eaaffb5",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:22:08.845000+00:00"
+    },
+    {
+      "news_id": "cb37c66c06377f4c52ae7977d8ff2943",
+      "model_version": "openai",
+      "score": 3,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:24:12.462000+00:00"
+    },
+    {
+      "news_id": "d02ed242b84ef0706dded09da4617364",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:40:24.062000+00:00"
+    },
+    {
+      "news_id": "d6187ed3b6b6c0d29979002afd39882f",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:24:24.778000+00:00"
+    },
+    {
+      "news_id": "d8458565cb7586e18f226dbfd45dd502",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:24:22.653000+00:00"
+    },
+    {
+      "news_id": "d8de3ebd969c6da681754bd59b626d42",
+      "model_version": "openai",
+      "score": 3,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:40:33.849000+00:00"
     },
     {
       "news_id": "d99d5694855d1f7c05da1ce4bda7c126",
@@ -129,21 +289,61 @@
       "created_at": "2025-11-04 08:22:00.658000+00:00"
     },
     {
+      "news_id": "db2e04a8a229853eea724c95ccdeaea5",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 02:00:07.250000+00:00"
+    },
+    {
+      "news_id": "dfa3a46635525dfe1c6c4f6924772edd",
+      "model_version": "openai",
+      "score": 4,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:24:15.837000+00:00"
+    },
+    {
       "news_id": "e0a798e413c4a5147ae968e0dad0a0ea",
       "model_version": "openai",
       "score": 5,
       "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
       "date_str": "2025-11-03",
       "created_at": "2025-11-04 08:22:52.497000+00:00"
+    },
+    {
+      "news_id": "e1cebf100583679ac70eaf1c7396b821",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:42:17.494000+00:00"
+    },
+    {
+      "news_id": "fa5bcf55a5cb3e1f86e5e7357e3d1da7",
+      "model_version": "openai",
+      "score": 3,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:24:18.768000+00:00"
+    },
+    {
+      "news_id": "fcfc48ab0d4a29df902415c0e0d3c04a",
+      "model_version": "openai",
+      "score": 5,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-13",
+      "created_at": "2025-11-14 01:23:19.278000+00:00"
     }
   ],
   "analysis": {
     "summary": {
       "openai": {
-        "count": 17,
-        "avg_score": 3.6470588235294117
+        "count": 42,
+        "avg_score": 4.023809523809524
       }
     },
-    "total_records": 17
+    "total_records": 42
   }
 }
