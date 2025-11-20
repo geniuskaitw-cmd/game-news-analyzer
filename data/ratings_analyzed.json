@@ -17,6 +17,22 @@
       "created_at": "2025-11-04 10:53:00.352000+00:00"
     },
     {
+      "news_id": "04086d9559bdf2c608fefac63b892161",
+      "model_version": "openai",
+      "score": 3,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-19",
+      "created_at": "2025-11-20 02:00:00.434000+00:00"
+    },
+    {
+      "news_id": "18a69dc5a74178f21a98668e82d86283",
+      "model_version": "openai",
+      "score": 4,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-19",
+      "created_at": "2025-11-20 02:00:01.390000+00:00"
+    },
+    {
       "news_id": "23e364eada150934941177c6511256f8",
       "model_version": "openai",
       "score": 5,
@@ -73,6 +89,14 @@
       "created_at": "2025-11-14 01:40:27.051000+00:00"
     },
     {
+      "news_id": "3c984431e5aa704d340126e549f8b658",
+      "model_version": "openai",
+      "score": 3,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-19",
+      "created_at": "2025-11-20 01:30:55.088000+00:00"
+    },
+    {
       "news_id": "3f90dabb317518c394facafadb6b9d8b",
       "model_version": "openai",
       "score": 5,
@@ -121,6 +145,14 @@
       "created_at": "2025-11-14 01:23:10.406000+00:00"
     },
     {
+      "news_id": "4ff526c76c6ca6cf71d0effa143dea71",
+      "model_version": "openai",
+      "score": 3,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-19",
+      "created_at": "2025-11-20 01:31:37.150000+00:00"
+    },
+    {
       "news_id": "5694762d98507d8a8bdeb5a672335e89",
       "model_version": "openai",
       "score": 2,
@@ -143,6 +175,14 @@
       "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
       "date_str": "2025-11-13",
       "created_at": "2025-11-14 01:40:51.287000+00:00"
+    },
+    {
+      "news_id": "6e7a652c523edb85b13f4ba7acb1e349",
+      "model_version": "openai",
+      "score": 4,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-19",
+      "created_at": "2025-11-20 04:37:38.404000+00:00"
     },
     {
       "news_id": "787cbcfe749e6c4d43a3ff9e9ec0ea26",
@@ -201,6 +241,22 @@
       "created_at": "2025-11-05 05:31:28.275000+00:00"
     },
     {
+      "news_id": "a43348eafb81bc50ffd65a0bfb97156d",
+      "model_version": "openai",
+      "score": 4,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-19",
+      "created_at": "2025-11-20 02:00:13.498000+00:00"
+    },
+    {
+      "news_id": "b1e5ab6361f263329e07aacdc5c20eae",
+      "model_version": "openai",
+      "score": 3,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-19",
+      "created_at": "2025-11-20 02:00:09.232000+00:00"
+    },
+    {
       "news_id": "b71b3b104fd99c6eaf08b381d04ce3ae",
       "model_version": "openai",
       "score": 4,
@@ -239,6 +295,14 @@
       "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
       "date_str": "2025-11-13",
       "created_at": "2025-11-14 01:22:08.845000+00:00"
+    },
+    {
+      "news_id": "c82fa79f498d0b2cc48d4f51b99eb505",
+      "model_version": "openai",
+      "score": 4,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-19",
+      "created_at": "2025-11-20 01:28:06.367000+00:00"
     },
     {
       "news_id": "cb37c66c06377f4c52ae7977d8ff2943",
@@ -321,6 +385,22 @@
       "created_at": "2025-11-14 01:42:17.494000+00:00"
     },
     {
+      "news_id": "e8406d196eaad05ff6babf286e86b710",
+      "model_version": "openai",
+      "score": 4,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-19",
+      "created_at": "2025-11-20 02:00:28.452000+00:00"
+    },
+    {
+      "news_id": "edb4c56ee3e8951cd467a1010ccbb23b",
+      "model_version": "openai",
+      "score": 4,
+      "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+      "date_str": "2025-11-19",
+      "created_at": "2025-11-20 01:59:29.521000+00:00"
+    },
+    {
       "news_id": "fa5bcf55a5cb3e1f86e5e7357e3d1da7",
       "model_version": "openai",
       "score": 3,
@@ -340,10 +420,10 @@
   "analysis": {
     "summary": {
       "openai": {
-        "count": 42,
-        "avg_score": 4.023809523809524
+        "count": 52,
+        "avg_score": 3.9423076923076925
       }
     },
-    "total_records": 42
+    "total_records": 52
   }
 }
