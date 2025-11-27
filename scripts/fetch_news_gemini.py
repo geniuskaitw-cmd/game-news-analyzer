@@ -105,7 +105,7 @@ def fetch_article(url):
         debug_print(f"[WARN] GEM 抓全文失敗 {url} {e}")
         return "", "", None
 
-def sanitize_text(s,limit=120):
+def sanitize_text(s,limit=500):
     s=cc.convert(str(s or "")).strip()
     s=re.sub(r"\s+"," ",s)
     return s[:limit] if s else s
