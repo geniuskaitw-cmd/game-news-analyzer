@@ -2,7 +2,7 @@
 # 工作流：自動抓取新聞、AI分析、讀取Firebase評分，並推送結果回GitHub
 # 觸發：每天台灣時間 16:00 或 手動觸發
 # 版本：使用 git 指令替代 git-auto-commit-action
-# 修正：增加 lxml 依賴
+# 修正：增加 lxml 依賴，已移除 Gemini 執行步驟
 
 name: News Analysis Workflow
 
@@ -36,10 +36,7 @@ jobs:
           pip install google-generativeai openai
           pip install firebase-admin
 
-      - name: Run News Fetcher (Gemini)
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/fetch_news_gemini.py
+      # 已移除 Gemini 腳本執行步驟
 
       - name: Run News Fetcher (OpenAI)
         env:
@@ -69,7 +66,7 @@ jobs:
         run: |
           # 檢查是否有檔案變更，如果有才 commit
           if ! git diff --staged --quiet; then
-            git commit -m "chore: 自動更新新聞與評分數據 (Gemini + OpenAI)"
+            git commit -m "chore: 自動更新新聞與評分數據 (OpenAI Only)"
           else
             echo "No changes to commit in data/ folder."
           fi
