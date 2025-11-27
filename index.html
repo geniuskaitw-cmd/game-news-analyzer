@@ -80,12 +80,9 @@
             </div>
             
             <div class="flex border-b border-gray-700">
-                <button id="tab-openai" data-tab="openai" class="tab-btn px-4 py-2 text-sm text-white border-b-2 border-transparent hover:text-white tab-active">
+                <div class="px-4 py-2 text-sm text-white border-b-2 border-blue-500 font-bold">
                     OpenAI 分析
-                </button>
-                <button id="tab-gemini" data-tab="gemini" class="tab-btn px-4 py-2 text-sm text-gray-300 border-b-2 border-transparent hover:text-white">
-                    Gemini 分析
-                </button>
+                </div>
             </div>
         </div>
     </nav>
@@ -120,11 +117,10 @@
             isLoading: false,
             
             currentDate: null, // YYYY-MM-DD 格式
-            currentTab: 'openai', // 'openai' 或 'gemini'
+            currentTab: 'openai', // 固定為 openai
             currentPage: 1,
             itemsPerPage: 10,
             
-            geminiData: null, // 儲存 news_gemini.json 的內容
             openaiData: null, // 儲存 news_ai.json 的內容
 
             // 2. 初始化 (程式進入點)
@@ -196,10 +192,6 @@
                 // 日期選擇器
                 document.getElementById('date-select').addEventListener('change', (e) => this.handleDateChange(e));
                 
-                // 頁籤按鈕
-                document.getElementById('tab-openai').addEventListener('click', (e) => this.handleTabClick(e));
-                document.getElementById('tab-gemini').addEventListener('click', (e) => this.handleTabClick(e));
-                
                 // 匯出按鈕
                 document.getElementById('export-png-btn').addEventListener('click', () => this.handleExportPNG());
                 document.getElementById('export-pdf-btn').addEventListener('click', () => this.handleExportPDF());
@@ -211,14 +203,13 @@
                 document.getElementById('news-list-container').addEventListener('click', (e) => this.handleNewsCardClick(e));
             },
 
-            // 6. 核心資料載入邏輯 (需求 1 & 4)
+            // 6. 核心資料載入邏輯
             async loadDataForDate(dateString) {
                 if (this.isLoading) return;
                 this.setLoading(true);
                 this.currentDate = dateString;
                 
                 // 重設資料
-                this.geminiData = null;
                 this.openaiData = null;
                 this.currentPage = 1;
                 this.renderMessage("載入中...", true);
@@ -227,20 +218,16 @@
                 const dateForFile = dateString.replace(/-/g, '');
                 
                 try {
-                    const [geminiResult, openaiResult] = await Promise.all([
-                        this.fetchJson(`data/news_gemini_${dateForFile}.json`),
-                        this.fetchJson(`data/news_ai_${dateForFile}.json`)
-                    ]);
+                    // 只讀取 OpenAI 的資料
+                    const openaiResult = await this.fetchJson(`data/news_ai_${dateForFile}.json`);
                     
-                    this.geminiData = geminiResult;
                     this.openaiData = openaiResult;
 
-                    // 檢查是否至少有一個檔案成功載入
-                    if (!this.geminiData && !this.openaiData) {
-                        // 需求 1: 處理 404 (兩個檔案都不存在)
+                    // 檢查資料是否存在
+                    if (!this.openaiData) {
                         this.renderMessage("讀取新聞失敗或檔案不存在 (404)");
                     } else {
-                        // 成功，渲染當前頁籤
+                        // 成功，渲染介面
                         this.renderUI();
                     }
                     
@@ -254,19 +241,19 @@
             
             // 7. 渲染 UI (主函式)
             renderUI() {
-                // 根據當前頁籤選擇要渲染的資料
-                const dataToShow = (this.currentTab === 'gemini') ? this.geminiData : this.openaiData;
+                // 直接使用 openaiData
+                const dataToShow = this.openaiData;
                 
                 if (!dataToShow || !dataToShow.all || dataToShow.all.length === 0) {
-                    this.renderMessage(`(${this.currentTab}) 當天無重大新聞。`);
+                    this.renderMessage(`(OpenAI) 當天無重大新聞。`);
                     this.renderPagination(0); // 清空分頁
                     return;
                 }
                 
-                // 渲染新聞列表 (需求 2)
+                // 渲染新聞列表
                 this.renderNewsList(dataToShow.all);
                 
-                // 渲染分頁 (需求 3)
+                // 渲染分頁
                 this.renderPagination(dataToShow.all.length);
             },
             
@@ -411,31 +398,6 @@
                 }
             },
             
-            // 頁籤切換：主動切換 text-white 和 text-gray-300
-            handleTabClick(event) {
-                const newTab = event.target.dataset.tab;
-                if (newTab && newTab !== this.currentTab) {
-                    this.currentTab = newTab;
-                    this.currentPage = 1; // 切換頁籤時回到第一頁
-                    
-                    // 更新頁籤樣式
-                    document.querySelectorAll('.tab-btn').forEach(btn => {
-                        // 全部移除 active 狀態，並強制設為未選中顏色
-                        btn.classList.remove('tab-active');
-                        btn.classList.remove('text-white');
-                        btn.classList.add('text-gray-300');
-                    });
-                    
-                    // 將點擊的目標設為 active 狀態，並強制設為選中顏色
-                    event.target.classList.add('tab-active');
-                    event.target.classList.remove('text-gray-300');
-                    event.target.classList.add('text-white');
-                    
-                    // 重新渲染 UI
-                    this.renderUI();
-                }
-            },
-            
             handlePaginationClick(event) {
                 const button = event.target.closest('.pagination-btn');
                 if (!button || button.disabled) return;
@@ -561,11 +523,6 @@
                 window.print();
             },
             
-            // --- 需求 1 (展開/收合)：修改 HTML 產生邏輯 ---
-            
-            // 點擊「展開」時呼叫的函式 (現在由 handleNewsCardClick 處理)
-            // expandContent() 函式已被整合到 handleNewsCardClick，故刪除
-
             // 產生「摘要/影響」HTML 的輔助函式
             generateExpandableHtml(text, type, index, maxLength = 50) { // 預設 50 字
                 const uniqueId = `${type}-${index}`;
