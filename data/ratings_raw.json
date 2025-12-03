@@ -40,6 +40,14 @@
     "created_at": "2025-11-14 01:22:21.299000+00:00"
   },
   {
+    "news_id": "25bbd90c32ef18d118ff5778bd969b5e",
+    "model_version": "openai",
+    "score": 4,
+    "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+    "date_str": "2025-12-01",
+    "created_at": "2025-12-02 08:58:17.495000+00:00"
+  },
+  {
     "news_id": "296bc1fb2e51bcc878cec614c7a7dc8a",
     "model_version": "openai",
     "score": 5,
