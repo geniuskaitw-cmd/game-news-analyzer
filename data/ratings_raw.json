@@ -120,6 +120,14 @@
     "created_at": "2025-11-04 08:26:13.385000+00:00"
   },
   {
+    "news_id": "4678a717c3a3a176d839f95a69b66ebb",
+    "model_version": "openai",
+    "score": 3,
+    "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+    "date_str": "2025-12-03",
+    "created_at": "2025-12-04 01:10:09.066000+00:00"
+  },
+  {
     "news_id": "4794c18b09e7f1fda61f4d474d53621f",
     "model_version": "openai",
     "score": 2,
@@ -174,6 +182,14 @@
     "user_id": "R5Fp1EK3FHbOJeYu9yJyq6wwzON2",
     "date_str": "2025-11-03",
     "created_at": "2025-11-04 08:25:11.979000+00:00"
+  },
+  {
+    "news_id": "6b769459b040d32cb55c1a7c2d20465a",
+    "model_version": "openai",
+    "score": 5,
+    "user_id": "2GIf5tMnLvPttohu7hOL2OGZkN53",
+    "date_str": "2025-12-03",
+    "created_at": "2025-12-04 02:31:08.357000+00:00"
   },
   {
     "news_id": "6c5cb01d822374340c5cbc8f44f1e5a9",
@@ -232,12 +248,28 @@
     "created_at": "2025-11-05 00:48:21.063000+00:00"
   },
   {
+    "news_id": "8d16381d1bbd931c77b6bea75bdb78e7",
+    "model_version": "openai",
+    "score": 5,
+    "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+    "date_str": "2025-12-03",
+    "created_at": "2025-12-04 01:10:24.210000+00:00"
+  },
+  {
     "news_id": "9c2728958e046ba1fd6eb8b26cf97f3c",
     "model_version": "openai",
     "score": 3,
     "user_id": "hscSnLQzQhY7CnNCNRKfaJj16WW2",
     "date_str": "2025-10-30",
     "created_at": "2025-10-30 05:52:18.553000+00:00"
+  },
+  {
+    "news_id": "9ddd1cd60e2ad62888b00b42c690be96",
+    "model_version": "openai",
+    "score": 4,
+    "user_id": "2GIf5tMnLvPttohu7hOL2OGZkN53",
+    "date_str": "2025-12-03",
+    "created_at": "2025-12-04 02:00:10.818000+00:00"
   },
   {
     "news_id": "a3b84abe48fe6e2bcafd5b4aa8b02e9b",
@@ -334,6 +366,14 @@
     "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
     "date_str": "2025-11-13",
     "created_at": "2025-11-14 01:24:24.778000+00:00"
+  },
+  {
+    "news_id": "d7cd3f725682965fad5019424507232c",
+    "model_version": "openai",
+    "score": 5,
+    "user_id": "gMPSU5qYkUOWf246yzCnUDQBd6j2",
+    "date_str": "2025-12-03",
+    "created_at": "2025-12-04 01:10:04.980000+00:00"
   },
   {
     "news_id": "d8458565cb7586e18f226dbfd45dd502",
