@@ -177,6 +177,14 @@
       "created_at": "2025-11-04 08:26:36.364000+00:00"
     },
     {
+      "news_id": "5aad09b952d6c24f6468ad8b813e6303",
+      "model_version": "openai",
+      "score": 1,
+      "user_id": "prcFGQkbRdRNIP31XDC7j8kW6CE2",
+      "date_str": "2025-12-23",
+      "created_at": "2025-12-24 06:28:07.856000+00:00"
+    },
+    {
       "news_id": "615a7ab5b288e678d6ab840ce6edcfdc",
       "model_version": "openai",
       "score": 5,
@@ -468,10 +476,10 @@
   "analysis": {
     "summary": {
       "openai": {
-        "count": 58,
-        "avg_score": 3.9827586206896552
+        "count": 59,
+        "avg_score": 3.9322033898305087
       }
     },
-    "total_records": 58
+    "total_records": 59
   }
 }
