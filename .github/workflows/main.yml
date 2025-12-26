@@ -8,7 +8,7 @@ name: News Analysis Workflow
 
 on:
   schedule:
-    - cron: '0 8 * * *' # 每天 8:00 UTC (台灣時間 16:00)
+    # - cron: '0 8 * * *' # 每天 8:00 UTC (台灣時間 16:00)
   workflow_dispatch:
 
 jobs:
